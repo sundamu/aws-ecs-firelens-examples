@@ -1,0 +1,54 @@
+{
+    "family": "fluentbit-cloudwatch-sample",
+    "taskRoleArn": "arn:aws-cn:iam::086238767671:role/ecsTaskExecutionRole",
+    "executionRoleArn": "arn:aws-cn:iam::086238767671:role/ecsTaskExecutionRole",
+    "containerDefinitions": [
+      {
+        "essential": true,
+        "name": "log_router",
+        "image": "086238767671.dkr.ecr.cn-north-1.amazonaws.com.cn/logdemo/fluent-bit-cloudwatch:latest",
+        "mountPoints": [
+          {
+            "readOnly": false,
+            "containerPath": "/data/logs",
+            "sourceVolume": "data"
+          }
+        ],
+        "firelensConfiguration": {
+          "type": "fluentbit",
+          "options": {
+            "config-file-type": "file",
+            "config-file-value": "/extra.conf",
+            "enable-ecs-log-metadata": "false"
+          }
+        },
+        "user": "0"
+      },
+      {
+        "essential": true,
+        "name": "myapp",
+        "image": "086238767671.dkr.ecr.cn-north-1.amazonaws.com.cn/logdemo/myapp:latest",
+        "logConfiguration": {
+          "logDriver": "awsfirelens"
+        },
+        "mountPoints": [
+          {
+            "readOnly": false,
+            "containerPath": "/data/logs",
+            "sourceVolume": "data"
+          }
+        ]
+      }
+    ],
+    "cpu": "512",
+    "memory": "1024",
+    "volumes": [
+      {
+        "name": "data"
+      }
+    ],
+    "requiresCompatibilities": [
+      "FARGATE"
+    ],
+    "networkMode": "awsvpc"
+  }
